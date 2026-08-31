@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Figma to Tailwind Pro</title>
+    <style>
+      /*__CSS__*/
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"><span>TW</span></div>
+          <div class="brand-copy">
+            <h1>Figma to Tailwind</h1>
+            <p>Conversão precisa para produção</p>
+          </div>
+        </div>
+        <button id="refresh" class="icon-button" title="Atualizar seleção" aria-label="Atualizar seleção">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" /></svg>
+        </button>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Seções do plugin">
+        <button
+          id="tab-inspect"
+          class="tab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="inspect"
+          tabindex="0"
+          data-tab="inspect"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h7" /></svg>
+          Inspecionar
+        </button>
+        <button
+          id="tab-responsive"
+          class="tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="responsive"
+          tabindex="-1"
+          data-tab="responsive"
+          hidden
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h6v12H4zM14 3h6v18h-6zM10 12h4" /></svg>
+          Responsive
+        </button>
+        <button
+          id="tab-settings"
+          class="tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="settings"
+          tabindex="-1"
+          data-tab="settings"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+            <path
+              d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6l-.04.08h-4l-.04-.08a1.7 1.7 0 0 0-1.88-.34l-.08.04-2.83-2.83.06-.06A1.7 1.7 0 0 0 5 15a1.7 1.7 0 0 0-.6-1l-.08-.04v-4L4.4 10A1.7 1.7 0 0 0 5 9a1.7 1.7 0 0 0-.34-1.88l-.04-.08 2.83-2.83.08.04A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6l.04-.08h4l.04.08a1.7 1.7 0 0 0 1.88.34l.08-.04 2.83 2.83-.06.06A1.7 1.7 0 0 0 19 9c0 .4.22.78.6 1l.08.04v4l-.08.04c-.38.18-.6.52-.6.92Z"
+            />
+          </svg>
+          Configurações
+        </button>
+      </nav>
+
+      <div class="viewport">
+        <div id="notice" class="feedback feedback-notice global-notice" role="status" aria-live="polite" hidden></div>
+        <main id="inspect" role="tabpanel" aria-labelledby="tab-inspect">
+          <div id="error" class="feedback feedback-error" role="alert" hidden></div>
+          <div id="analysis-status" class="feedback feedback-notice" role="status" hidden></div>
+          <div id="selection-loading" class="selection-loading" role="status" hidden>
+            <span></span><b>Analisando seleção…</b>
+          </div>
+
+          <div id="empty" class="empty-state">
+            <div class="empty-visual" aria-hidden="true">
+              <div class="selection-corners"></div>
+              <svg viewBox="0 0 24 24"><path d="m7 3 11 9-5.2 1.2L10 18Z" /></svg>
+            </div>
+            <span class="eyebrow">Pronto para analisar</span>
+            <h2>Selecione uma camada no Figma</h2>
+            <p>As classes aparecem automaticamente assim que você selecionar um elemento no canvas.</p>
+            <div class="empty-steps">
+              <span>1</span> Selecione <i></i><span>2</span> Confira <i></i><span>3</span> Copie
+            </div>
+          </div>
+
+          <div id="content" hidden>
+            <section class="selection-context">
+              <div class="section-heading compact">
+                <div>
+                  <span class="eyebrow">Seleção atual</span>
+                  <h2>Elemento analisado</h2>
+                </div>
+                <span id="selection-count" class="count-pill"></span>
+              </div>
+              <div class="select-wrap"><select id="node-select" aria-label="Elemento selecionado"></select></div>
+            </section>
+
+            <section id="preview-card" class="preview-card" hidden>
+              <div class="preview-heading">
+                <div class="preview-title">
+                  <span class="preview-icon"
+                    ><svg viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="3" y="4" width="14" height="11" rx="2" />
+                      <path d="m7 20 3-5h5l3 5M8 9h4" /></svg
+                  ></span>
+                  <div>
+                    <span class="eyebrow">Referência visual</span>
+                    <h2>Original do Figma</h2>
+                  </div>
+                </div>
+                <div class="preview-tools">
+                  <button
+                    id="preview-bg"
+                    class="preview-tool"
+                    title="Alternar fundo"
+                    aria-label="Alternar fundo do preview"
+                  >
+                    <span></span>
+                  </button>
+                  <button
+                    id="preview-expand"
+                    class="preview-tool"
+                    title="Expandir preview"
+                    aria-label="Expandir preview"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8 3H3v5M16 21h5v-5M3 8l6-6M21 16l-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div id="preview-stage" class="preview-stage checker">
+                <div id="preview-status" class="preview-status">
+                  <span></span><b>Preparando preview</b><small>Renderizando diretamente pelo Figma…</small>
+                </div>
+                <img id="preview-image" alt="Preview do elemento selecionado" hidden />
+              </div>
+              <p id="preview-caption" class="preview-caption">
+                Original renderizado pelo Figma para comparação visual.
+              </p>
+            </section>
+
+            <section class="output-card">
+              <div class="output-glow" aria-hidden="true"></div>
+              <div class="output-heading">
+                <div><span class="status-dot"></span><span class="eyebrow light">Tailwind pronto para uso</span></div>
+                <span id="class-count" class="count-pill accent"></span>
+              </div>
+              <div class="code-surface"><code id="classes"></code></div>
+              <div class="primary-actions">
+                <button id="copy" class="button button-primary">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="8" y="8" width="11" height="11" rx="2" />
+                    <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+                  </svg>
+                  Copiar classes
+                </button>
+                <button id="copy-jsx" class="button button-secondary">className</button>
+              </div>
+              <button id="copy-all" class="button button-quiet full" hidden>Copiar todos os selecionados</button>
+              <div class="export-row">
+                <div class="select-wrap small">
+                  <select id="copy-format" aria-label="Formato alternativo">
+                    <option value="html">HTML class</option>
+                    <option value="vue">Vue :class</option>
+                  </select>
+                </div>
+                <button id="copy-format-button" class="button button-quiet">Copiar formato</button>
+              </div>
+              <details id="component-code-details" class="component-output" open hidden>
+                <summary>
+                  <span><b>Componente montado</b><small>JSX + Tailwind por camada</small></span>
+                  <span id="component-layout-badge" class="badge"></span>
+                </summary>
+                <div class="component-output-body">
+                  <label class="component-mode" for="component-output-mode">
+                    <span>Formato do código</span>
+                    <select id="component-output-mode">
+                      <option value="faithful">JSX fiel ao Figma</option>
+                      <option value="responsive" selected>JSX responsivo</option>
+                      <option value="component">Componente React com props</option>
+                    </select>
+                  </label>
+                  <label id="component-scope-field" class="component-mode" for="component-output-scope" hidden>
+                    <span>Elementos incluídos</span>
+                    <select id="component-output-scope">
+                      <option value="selection">Seleção completa</option>
+                      <option value="active">Somente elemento atual</option>
+                    </select>
+                  </label>
+                  <pre class="component-code"><code id="component-code"></code></pre>
+                  <ul id="component-notes" class="component-notes"></ul>
+                  <button id="copy-component" class="button button-primary full">Copiar componente React</button>
+                </div>
+              </details>
+              <details class="diagnostic-copy">
+                <summary>Opções avançadas</summary>
+                <div class="diagnostic-body">
+                  <p>Lista cada camada separadamente para evitar misturar estilos entre pai e filhos.</p>
+                  <button id="copy-tree" class="button button-quiet full">Copiar mapa por camada</button>
+                </div>
+              </details>
+              <div id="toast" class="toast" role="status" aria-live="polite"></div>
+            </section>
+
+            <div class="panel-stack">
+              <details id="suggestions-details" class="panel panel-insight">
+                <summary>
+                  <span class="summary-icon insight">✦</span
+                  ><span class="summary-copy"
+                    ><b>Sugestões inteligentes</b><small>Oportunidades sem alterar a saída</small></span
+                  ><span id="suggestions-count" class="badge"></span>
+                </summary>
+                <div id="suggestions" class="panel-content"></div>
+              </details>
+              <details id="segments-details" class="panel">
+                <summary>
+                  <span class="summary-icon">Aa</span
+                  ><span class="summary-copy"
+                    ><b>Trechos de texto</b><small>Estilos encontrados no conteúdo</small></span
+                  ><span id="segments-count" class="badge"></span>
+                </summary>
+                <div id="segments" class="panel-content"></div>
+              </details>
+              <details id="structure-details" class="panel" open>
+                <summary>
+                  <span class="summary-icon">⌘</span
+                  ><span class="summary-copy"
+                    ><b>Estrutura sugerida</b><small>Leitura do layout e alinhamento</small></span
+                  ><span id="structure-badge" class="badge"></span>
+                </summary>
+                <div id="structure" class="panel-content"></div>
+              </details>
+              <details class="panel">
+                <summary>
+                  <span class="summary-icon">{ }</span
+                  ><span class="summary-copy"><b>Propriedades</b><small>Origem de cada classe gerada</small></span
+                  ><span id="property-count" class="badge"></span>
+                </summary>
+                <div id="properties" class="panel-content"></div>
+              </details>
+              <details class="panel">
+                <summary>
+                  <span class="summary-icon">⌘</span
+                  ><span class="summary-copy"><b>Hierarquia</b><small>Camadas analisadas</small></span
+                  ><span id="tree-count" class="badge"></span>
+                </summary>
+                <div id="tree" class="tree panel-content" role="navigation" aria-label="Hierarquia de camadas"></div>
+              </details>
+              <details id="unsupported-details" class="panel panel-warning">
+                <summary>
+                  <span class="summary-icon warning">!</span
+                  ><span class="summary-copy"
+                    ><b>Atenção necessária</b><small>Propriedades que merecem revisão</small></span
+                  ><span id="unsupported-count" class="badge warning"></span>
+                </summary>
+                <ul id="unsupported" class="warning-list panel-content"></ul>
+              </details>
+              <details id="requirements-details" class="panel">
+                <summary>
+                  <span class="summary-icon">F</span
+                  ><span class="summary-copy"
+                    ><b>Requisitos do projeto</b><small>Fontes e dependências necessárias</small></span
+                  ><span id="requirements-count" class="badge"></span>
+                </summary>
+                <div id="requirements" class="panel-content"></div>
+              </details>
+              <details id="history-details" class="panel">
+                <summary>
+                  <span class="summary-icon">↺</span
+                  ><span class="summary-copy"><b>Histórico de cópia</b><small>Últimos resultados copiados</small></span
+                  ><span id="history-count" class="badge"></span>
+                </summary>
+                <div id="history" class="panel-content"></div>
+              </details>
+            </div>
+          </div>
+        </main>
+
+        <main id="responsive" role="tabpanel" aria-labelledby="tab-responsive" hidden>
+          <section class="responsive-hero">
+            <div>
+              <span class="eyebrow">Responsive Compare</span>
+              <h2>Compare viewports com evidência</h2>
+              <p>O plugin correlaciona a hierarquia e aplica somente diferenças responsivas confiáveis.</p>
+            </div>
+            <span id="responsive-status-badge" class="badge" role="status" aria-live="polite">Aguardando</span>
+          </section>
+
+          <div id="responsive-loading" class="selection-loading" role="status" hidden>
+            <span></span><b>Preparando todos os containers…</b>
+          </div>
+          <div id="responsive-panel"></div>
+        </main>
+
+        <main id="settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+          <section class="settings-intro">
+            <span class="eyebrow">Personalize o conversor</span>
+            <h2>Configurações do projeto</h2>
+            <p>Ajuste como o plugin interpreta e entrega as classes para o seu ambiente.</p>
+          </section>
+
+          <section class="settings-card">
+            <div class="settings-card-heading">
+              <span class="settings-icon">01</span>
+              <div>
+                <h2>Saída</h2>
+                <p>Formato e nível de precisão</p>
+              </div>
+            </div>
+            <label class="field" for="outputProfile"
+              ><span><b>Perfil de saída</b><small>Escolha entre fidelidade literal ou código enxuto.</small></span>
+              <div class="select-wrap">
+                <select id="outputProfile">
+                  <option value="faithful">Fiel ao Figma</option>
+                  <option value="optimized">Otimizado</option>
+                </select>
+              </div></label
+            >
+            <label class="field" for="colorFormat"
+              ><span><b>Formato de cor</b><small>Tailwind apenas quando a correspondência for exata.</small></span>
+              <div class="select-wrap">
+                <select id="colorFormat">
+                  <option value="tailwind">Tailwind quando exato</option>
+                  <option value="hex">HEX</option>
+                  <option value="rgb">RGB</option>
+                </select>
+              </div></label
+            >
+            <label class="toggle-row" for="preferDefaults"
+              ><span><b>Preferir classes padrão</b><small>Usa p-4 no lugar de p-[16px].</small></span
+              ><input id="preferDefaults" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+            ></label>
+            <label class="toggle-row" for="useRem"
+              ><span><b>Usar rem</b><small>Converte arbitrary values considerando 1rem = 16px.</small></span
+              ><input id="useRem" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+            ></label>
+            <label class="toggle-row" for="ignoreAutomaticTextDimensions"
+              ><span><b>Ignorar dimensões automáticas</b><small>Remove caixas automáticas de TextNodes.</small></span
+              ><input id="ignoreAutomaticTextDimensions" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+            ></label>
+          </section>
+
+          <section class="settings-card">
+            <div class="settings-card-heading">
+              <span class="settings-icon">02</span>
+              <div>
+                <h2>Projeto</h2>
+                <p>Ambiente e design tokens</p>
+              </div>
+            </div>
+            <label class="field" for="tailwindVersion"
+              ><span><b>Versão do Tailwind</b><small>Mantém as classes compatíveis com o projeto.</small></span>
+              <div class="select-wrap">
+                <select id="tailwindVersion">
+                  <option value="4">Tailwind 4</option>
+                  <option value="3">Tailwind 3</option>
+                </select>
+              </div></label
+            >
+            <label class="field" for="defaultFontFamily"
+              ><span><b>Fonte padrão</b><small>Omite a família apenas quando houver correspondência exata.</small></span
+              ><input id="defaultFontFamily" type="text" placeholder="Ex.: Inter"
+            /></label>
+            <label class="field" for="tokenMappings"
+              ><span><b>Mapeamento de tokens</b><small>Uma substituição explícita por linha.</small></span
+              ><textarea
+                id="tokenMappings"
+                rows="5"
+                spellcheck="false"
+                placeholder="bg-[#8E2424] = bg-brand-primary&#10;font-['Inter'] = font-sans"
+              ></textarea>
+            </label>
+          </section>
+
+          <section class="settings-card">
+            <div class="settings-card-heading">
+              <span class="settings-icon">03</span>
+              <div>
+                <h2>Análise estrutural</h2>
+                <p>Controle das inferências visuais</p>
+              </div>
+            </div>
+            <label class="field" for="analysisPreset"
+              ><span><b>Perfil de análise</b><small>Define quanto o plugin pode inferir visualmente.</small></span>
+              <div class="select-wrap">
+                <select id="analysisPreset">
+                  <option value="conservative">Conservador</option>
+                  <option value="balanced">Equilibrado</option>
+                  <option value="flexible">Flexível</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div></label
+            >
+            <details class="advanced panel">
+              <summary>
+                <span class="summary-copy"><b>Ajustes avançados</b><small>Tolerâncias e confiança</small></span>
+              </summary>
+              <div class="advanced-grid panel-content">
+                <label class="field compact-field" for="alignmentTolerancePx"
+                  ><span><b>Alinhamento</b><small>Diferença máxima em px.</small></span
+                  ><input id="alignmentTolerancePx" type="number" min="1" max="40" step="1"
+                /></label>
+                <label class="field compact-field" for="gapTolerancePx"
+                  ><span><b>Gap</b><small>Variação aceita em px.</small></span
+                  ><input id="gapTolerancePx" type="number" min="1" max="40" step="1"
+                /></label>
+                <label class="field compact-field" for="groupGapFactor"
+                  ><span><b>Quebra de grupos</b><small>Fator de distância.</small></span
+                  ><input id="groupGapFactor" type="number" min="1.5" max="8" step="0.1"
+                /></label>
+                <label class="field compact-field" for="minimumStructureConfidence"
+                  ><span><b>Confiança mínima</b><small>De 0.5 até 1.</small></span
+                  ><input id="minimumStructureConfidence" type="number" min="0.5" max="1" step="0.05"
+                /></label>
+              </div>
+              <div class="panel-content">
+                <label class="toggle-row" for="smartDebug"
+                  ><span
+                    ><b>Log de decisões</b
+                    ><small
+                      >Mostra evidências locais das inferências, sem enviar dados para serviços externos.</small
+                    ></span
+                  ><input id="smartDebug" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+              </div>
+            </details>
+          </section>
+
+          <section class="settings-card">
+            <div class="settings-card-heading">
+              <span class="settings-icon">04</span>
+              <div>
+                <h2>Responsive Compare</h2>
+                <p>Matching, confiança e inferências</p>
+              </div>
+            </div>
+            <label class="toggle-row" for="responsiveCompareEnabled"
+              ><span><b>Ativar comparação responsiva</b><small>Exibe a aba ao selecionar 2–5 containers.</small></span
+              ><input id="responsiveCompareEnabled" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+            ></label>
+            <label class="field" for="responsivePreset"
+              ><span><b>Perfil responsivo</b><small>Quanto de evidência é exigido para aplicar classes.</small></span>
+              <div class="select-wrap">
+                <select id="responsivePreset">
+                  <option value="conservative">Conservador</option>
+                  <option value="balanced">Equilibrado</option>
+                  <option value="flexible">Flexível</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div></label
+            >
+            <details class="advanced panel">
+              <summary>
+                <span class="summary-copy"
+                  ><b>Ajustes responsivos</b><small>Limiares e comportamento automático</small></span
+                >
+              </summary>
+              <div class="advanced-grid panel-content">
+                <label class="field compact-field" for="responsiveMatchConfidence"
+                  ><span><b>Match mínimo</b><small>0.5 até 1.</small></span
+                  ><input id="responsiveMatchConfidence" type="number" min="0.5" max="1" step="0.01"
+                /></label>
+                <label class="field compact-field" for="responsiveStructureSimilarity"
+                  ><span><b>Estrutura mínima</b><small>0.4 até 1.</small></span
+                  ><input id="responsiveStructureSimilarity" type="number" min="0.4" max="1" step="0.01"
+                /></label>
+                <label class="field compact-field" for="responsiveGeometryTolerance"
+                  ><span><b>Tolerância geométrica</b><small>Proporção do Frame.</small></span
+                  ><input id="responsiveGeometryTolerance" type="number" min="0.005" max="0.25" step="0.005"
+                /></label>
+                <label class="field compact-field" for="responsivePercentageTolerance"
+                  ><span><b>Tolerância percentual</b><small>Frações como 1/2.</small></span
+                  ><input id="responsivePercentageTolerance" type="number" min="0.002" max="0.1" step="0.001"
+                /></label>
+              </div>
+              <div class="panel-content responsive-setting-toggles">
+                <label class="toggle-row" for="responsiveAutoBreakpoint"
+                  ><span><b>Sugerir breakpoint</b><small>O usuário ainda pode corrigir na aba.</small></span
+                  ><input id="responsiveAutoBreakpoint" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+                <label class="toggle-row" for="responsiveVisibility"
+                  ><span><b>Inferir visibilidade</b><small>Exige parent e siblings confirmados.</small></span
+                  ><input id="responsiveVisibility" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+                <label class="toggle-row" for="responsiveOrder"
+                  ><span><b>Inferir ordem</b><small>Somente em Auto Layout/Grid confirmado.</small></span
+                  ><input id="responsiveOrder" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+                <label class="toggle-row" for="responsiveTypography"
+                  ><span><b>Tipografia responsiva</b><small>Preserva font-size e line-height em conjunto.</small></span
+                  ><input id="responsiveTypography" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+                <label class="toggle-row" for="responsiveHeuristics"
+                  ><span><b>Aplicar layout heurístico</b><small>Desativado por padrão; use com revisão.</small></span
+                  ><input id="responsiveHeuristics" type="checkbox" /><i class="toggle" aria-hidden="true"></i
+                ></label>
+              </div>
+            </details>
+          </section>
+
+          <button id="reset-settings" class="reset-button">Restaurar configurações padrão</button>
+          <p class="settings-footnote"><span></span> Alterações salvas automaticamente neste dispositivo.</p>
+        </main>
+      </div>
+    </div>
+    <script>
+      /*__JS__*/
+    </script>
+  </body>
+</html>
